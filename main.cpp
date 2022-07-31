@@ -18,7 +18,7 @@ class Car {
         int highwayMPG;
         string fuel;
         int price;
-        string classification;
+        //string classification;
         //string transmission;
         //int gears;
         //string engine;
@@ -28,7 +28,7 @@ class Car {
 
         }
 
-        Car(string carModel, string carBrand, int carYear, int carHP, int carCityMpg, int carHighwayMPG, string carFuel) {
+        Car(string carModel, string carBrand, int carYear, int carHP, int carCityMpg, int carHighwayMPG, string carFuel, int carPrice) {
             this->model = carModel;
             this->brand = carBrand;
             this->year = carYear;
@@ -36,31 +36,29 @@ class Car {
             this->cityMPG = carCityMpg;
             this->highwayMPG = carHighwayMPG;
             this->fuel = carFuel;
+            this->price = carPrice;
         }
 };
 
 int main() {
     vector<Car> cars;
     json list;
-    unordered_set<string> hashset;
     ifstream fileOpener("cars.json");
+    if(!fileOpener.is_open()) {
+        cout << "Whoops" << endl;
+    }
     fileOpener >> list;
     for(int i = 0; i < list.size(); i++) {
-        auto identification = list[i].at("Identification");
-        auto engineInfo = list[i].at("Engine Information");
-        auto engineStats = engineInfo.at("Engine Statistics");
-        auto fuelInfo = list[i].at("Fuel Information");
-        auto ID = identification.at("ID");
-        if(hashset.find(ID) == hashset.end()) {
-            hashset.insert(ID);
-            auto model = identification.at("ID");
-            auto brand = identification.at("Make");
-            auto year = identification.at("Year");
-            auto hp = engineStats.at("Horsepower");
-            auto citympg = fuelInfo.at("City mpg");
-            auto highwaympg = fuelInfo.at("Highway mpg");
-            auto fuel = fuelInfo.at("Fuel Type");
-            cars.push_back(Car(model, brand, year, hp, citympg, highwaympg, fuel));
-        }
+        string model = list[i].at("Identification.ID");
+        string brand = list[i].at("Identification.Make");
+        int year = list[i].at("Identification.Year");
+        int horsepower = list[i].at("Engine Information.Engine Statistics.Horsepower");
+        int cityMPG = list[i].at("Fuel Information.City mpg");
+        int highwayMPG = list[i].at("Fuel Information.Highway mpg");
+        string fuel = list[i].at("Fuel Information.Fuel Type");
+        int price = list[i].at("Price");
+        cars.push_back(Car(model, brand, year, horsepower, cityMPG, highwayMPG, fuel, price));
     }
+    cout << cars.size() << endl;
+    return 0;
 }
