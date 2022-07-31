@@ -40,6 +40,65 @@ class Car {
         }
 };
 
+vector<string> takeInput() {
+    vector<string> responses;
+    while(true) {
+        string input;
+        cin >> input;
+        if(input == "None") {
+            break;
+        }
+        else if(input == "Done") {
+            break;
+        }
+        else {
+            responses.push_back(input);
+        }
+    }
+    return responses;
+}
+
+vector<int> takeYearInput() {
+    vector<int> responses;
+    while(true) {
+        string input;
+        cin >> input;
+        if(input == "None") {
+            break;
+        }
+        else if(input == "Done") {
+            break;
+        }
+        else {
+            if(responses.size() == 9) {
+                return responses;
+            }
+            responses.push_back(stoi(input));
+        }
+    }
+    return responses;
+}
+
+vector<int> takeRangeInput() {
+    vector<int> responses;
+    while(true) {
+        string input;
+        cin >> input;
+        if(input == "None") {
+            break;
+        }
+        else if(input == "Done") {
+            break;
+        }
+        else {
+            if(responses.size() >= 2) {
+                return responses;
+            }
+            responses.push_back(stoi(input));
+        }
+    }
+    return responses;
+}
 int main() {
     vector<Car> cars;
     json list;
@@ -48,6 +107,7 @@ int main() {
         cout << "Whoops" << endl;
     }
     fileOpener >> list;
+    //Create the cars vector. Temporary place to store
     for(int i = 0; i < list.size(); i++) {
         string model = list[i].at("Identification.ID");
         string brand = list[i].at("Identification.Make");
@@ -59,6 +119,36 @@ int main() {
         int price = list[i].at("Price");
         cars.push_back(Car(model, brand, year, horsepower, cityMPG, highwayMPG, fuel, price));
     }
-    cout << cars.size() << endl;
+    vector<string> brands;
+    vector<int> years;
+    vector<int> rangeHP;
+    vector<int> rangeCityMPG;
+    vector<int> rangeHighwayMPG;
+    vector<string> fuelTypes;
+    vector<int> priceRange;
+    cout << "Welcome to the Car Recommendation System!" << endl;
+    cout << "-----------------------------------------" << endl;
+    cout << endl;
+    cout << "Which brand of cars are you looking for?" << endl;
+    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
+    brands = takeInput();
+    cout << "What year of cars are you looking for?" << endl;
+    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
+    years = takeYearInput();
+    cout << "Enter in a range of horsepower you are looking for" << endl;
+    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
+    rangeHP = takeRangeInput();
+    cout << "Enter in a range of city MPG you are looking for" << endl;
+    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
+    rangeCityMPG = takeRangeInput();
+    cout << "Enter in a range of highway MPG you are looking for" << endl;
+    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
+    rangeHighwayMPG = takeRangeInput();
+    cout << "What type of fuel are you looking for" << endl;
+    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
+    fuelTypes = takeInput();
+    cout << "What is your price range?" << endl;
+    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
+    priceRange = takeRangeInput();
     return 0;
 }
