@@ -13,14 +13,14 @@ class Car {
         string model;
         string brand;
         int year;
-        int horsepower;
-        int cityMPG;
-        int highwayMPG;
+        double horsepower;
+        double cityMPG;
+        double highwayMPG;
         string fuel;
-        int price;
+        double price;
+        double gears;
         //string classification;
         //string transmission;
-        //int gears;
         //string engine;
 
     public:
@@ -28,7 +28,8 @@ class Car {
 
         }
 
-        Car(string carModel, string carBrand, int carYear, int carHP, int carCityMpg, int carHighwayMPG, string carFuel, int carPrice) {
+        Car(string carModel, string carBrand, int carYear, double carHP, double carCityMpg, double carHighwayMPG,
+            string carFuel, double carPrice, double numGears) {
             this->model = carModel;
             this->brand = carBrand;
             this->year = carYear;
@@ -37,6 +38,7 @@ class Car {
             this->highwayMPG = carHighwayMPG;
             this->fuel = carFuel;
             this->price = carPrice;
+            this->gears = numGears;
         }
 };
 
@@ -99,8 +101,24 @@ vector<int> takeRangeInput() {
     }
     return responses;
 }
+
+void cosine_similarility(vector<double> idealCar, vector<vector<double>> goodCars) {
+    for(int i = 0; i < goodCars.size(); i++) {
+        double dotproduct = 0.0;
+        double denom_idealCar = 0.0;
+        double denom_currCar = 0.0;
+        for(int j = 0; j < goodCars[i].size(); j++) {
+            dotproduct += idealCar[j] * goodCars.at(i).at(j);
+            denom_idealCar += idealCar[j] * idealCar[j];
+            denom_currCar += goodCars.at(i).at(j) * goodCars.at(i).at(j);
+        }
+        goodCars[i].push_back(dotproduct / (sqrt(denom_idealCar) * sqrt(denom_currCar)));
+    }
+}
+
 int main() {
     vector<Car> cars;
+    vector<vector<int>> info;
     json list;
     ifstream fileOpener("cars.json");
     if(!fileOpener.is_open()) {
@@ -109,6 +127,7 @@ int main() {
     fileOpener >> list;
     //Create the cars vector. Temporary place to store
     for(int i = 0; i < list.size(); i++) {
+        vector<int> carInfo;
         string model = list[i].at("Identification.ID");
         string brand = list[i].at("Identification.Make");
         int year = list[i].at("Identification.Year");
@@ -117,7 +136,14 @@ int main() {
         int highwayMPG = list[i].at("Fuel Information.Highway mpg");
         string fuel = list[i].at("Fuel Information.Fuel Type");
         int price = list[i].at("Price");
-        cars.push_back(Car(model, brand, year, horsepower, cityMPG, highwayMPG, fuel, price));
+        int gears = list[i].at("Engine Information.Number of Forward Gears");
+        cars.push_back(Car(model, brand, year, horsepower, cityMPG, highwayMPG, fuel, price, gears));
+        carInfo.push_back(horsepower);
+        carInfo.push_back(cityMPG);
+        carInfo.push_back(highwayMPG);
+        carInfo.push_back(price);
+        carInfo.push_back(gears);
+        info.push_back(carInfo);
     }
     vector<string> brands;
     vector<int> years;
@@ -150,5 +176,10 @@ int main() {
     cout << "What is your price range?" << endl;
     cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
     priceRange = takeRangeInput();
+    if(brands.size() == 0 && years.size() == 0 && rangeHP.size() == 0 && rangeCityMPG.size() == 0 &&
+    rangeHighwayMPG.size() == 0 && fuelTypes.size() == 0) {
+        //TODO: Call MergeSort
+        //TODO: Call Radix Sort (or some other non-trivial sorting method)
+    }
     return 0;
 }
