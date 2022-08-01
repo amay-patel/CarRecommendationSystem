@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Tree.cpp"
+#include "Tree.h"
 #include "Car.h"
 using namespace std;
 
