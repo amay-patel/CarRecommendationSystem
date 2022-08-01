@@ -1,6 +1,7 @@
 //
 // Created by Rohan Chander on 8/1/22.
 //
+
 #include "Tree.h"
 
 Tree::Tree(int maxNumChildren, int blockSize) {
@@ -8,19 +9,25 @@ Tree::Tree(int maxNumChildren, int blockSize) {
     this->blockSize = blockSize;
     this->root = nullptr;
     this->size = 0;
-
 }
 
-//MAKE SURE CHANGES GO THROUGH AND NOT JUST SHALLOW CHANGE//
 void Tree::BlockInsertion(vector<Car>& block, Car car) {
-    int index = 0;
+    //  here is your entire function in six lines
+    for (auto iter = block.begin(); iter < block.end(); iter++) {
+        if ((*iter).getModel() > car.getModel()) {
+            block.insert(iter, car);
+            break;
+        }
+    }
+    /*
+    int index;
     for(int i = 0; i< block.size(); i++){
         if(car.getModel() < block[i].getModel()){
             index = i;
             break;
         }
         if(i == block.size()-1){
-            index = block.size()-1;
+            index = i;
         }
     }
     Car endCar = block[block.size()-1];
@@ -28,14 +35,13 @@ void Tree::BlockInsertion(vector<Car>& block, Car car) {
         block[i] = block[i-1];
     }
     block[index] = car;
-    block.push_back(endCar);
+    block.push_back(endCar);*/
 }
-
 
 void Tree::ChildBlockInsertion(Node *parent, Node *child, Car car) {
     int childBlockIndex = 0;
     int parentBlockIndex = 0;
-    for(int i = 0; i< parent->size; i++){
+    for(int i = 0; i < parent->size; i++){
         if(car.getModel() < parent->block[i].getModel()){
             childBlockIndex = i+1;
             parentBlockIndex = i;
@@ -104,8 +110,6 @@ void Tree::ParentalInsert(Node *parent, Node *child, Car car) {
     }
 }
 
-
-
 void Tree::Insert(Car car) {
     if(this->root == nullptr){
         this->root = new Node(car);
@@ -117,7 +121,7 @@ void Tree::Insert(Car car) {
         Node* search = root;
         //Searches inside tree for appropriate place to put, traverses down to leaves//
         while(!search->leaf){
-            for(int i = 0; i< search->size; i++){
+            for(int i = 0; i < search->size; i++){
                 //Passes the search onto the according children block
                 if(car.getModel() < search->block[i].getModel()){
                     search = search->children[i];
