@@ -22,52 +22,64 @@ void Tree::BlockInsertion(vector<Car*>& block, Car* car) {
             break;
         }
     }
-    /*int index;
-    for(int i = 0; i< block.size(); i++){
-        if(car.getModel() < block[i].getModel()){
-            index = i;
-            break;
-        }
-        if(i == block.size()-1){
-            index = i;
-        }
-    }
-    Car endCar = block[block.size()-1];
-    for(int i = block.size()-1; i>= index; i--){
-        block[i] = block[i-1];
-    }
-    block[index] = car;
-    block.push_back(endCar);*/
 }
 
 void Tree::ChildBlockInsertion(Node *parent, Node *child, Car* car) {
-    int childBlockIndex = 0;
-    int parentBlockIndex = 0;
-    for(int i = 0; i < parent->size; i++){
-        if(car->getModel() < parent->block[i]->getModel()){
-            childBlockIndex = i+1;
-            parentBlockIndex = i;
+//    int childBlockIndex = 0;
+//    int parentBlockIndex = 0;
+//    for(int i = 0; i < parent->size; i++){
+//        if(car->getModel() < parent->block[i]->getModel()){
+//            childBlockIndex = i+1;
+//            parentBlockIndex = i;
+//            break;
+//        }
+//        if(i == parent->size-1){
+//            childBlockIndex = parent->size+1;
+//            parentBlockIndex = parent->size;
+//            break;
+//        }
+//    }
+    int indexChecker = -1;
+    for(auto iter = parent->block.begin(); iter < parent->block.end(); iter++){
+        indexChecker++;
+        if ((*iter)->getModel() > car->getModel()) {
+            parent->block.insert(iter, car);
             break;
         }
-        if(i == parent->size-1){
-            childBlockIndex = parent->size+1;
-            parentBlockIndex = parent->size;
+        if(iter+1 == parent->block.end()){
+            parent->block.insert(iter+1, car);
+            indexChecker++;
             break;
         }
-        Car* temp = parent->block[parent->size-1];
-        for(int i = parent->size; i> parentBlockIndex; i--){
-            parent->block[i] = parent->block[i-1];
-        }
-        Node* temp2 = parent->children[parent->children.size()-1];
-        for(int i = parent->size+1; i> childBlockIndex; i--){
-            parent->children[i] = parent->children[i-1];
-        }
-        parent->block[parentBlockIndex] = car;
-        parent->block.push_back(temp);
-        parent->children[childBlockIndex] = child;
-        parent->children.push_back(temp2);
-
     }
+
+    int checker = 0;
+    for(auto iter = parent->children.begin(); iter< parent->children.end(); iter++){
+        if(checker==indexChecker+1){
+            parent->children.insert(iter, child);
+            break;
+        }
+        if(iter+1 == parent->children.end()){
+            parent->children.insert(iter+1, child);
+            break;
+        }
+        checker++;
+    }
+
+//    Car* temp = parent->block[parent->size-1];
+//    for(int i = parent->size; i> parentBlockIndex; i--){
+//        parent->block[i] = parent->block[i-1];
+//    }
+
+//    Node* temp2 = parent->children[parent->children.size()-1];
+//    for(int i = parent->size+1; i> childBlockIndex; i--){
+//        parent->children[i] = parent->children[i-1];
+//    }
+//    parent->block[parentBlockIndex] = car;
+//    parent->block.push_back(temp);
+//    parent->children[childBlockIndex] = child;
+//    parent->children.push_back(temp2);
+
 }
 
 void Tree::ParentalInsert(Node *parent, Node *child, Car* car) {
@@ -76,18 +88,18 @@ void Tree::ParentalInsert(Node *parent, Node *child, Car* car) {
         parent->size++;
     }
     else{
-        Node* anotherNode;
+        Node* anotherNode = new Node();
         anotherNode->parent = parent->parent;
 
         vector<Car*> parentBlockCopy;
         for(int i = 0; i< parent->block.size(); i++){
-            parentBlockCopy[i] = parent->block[i];
+            parentBlockCopy.push_back(parent->block[i]);
         }
         BlockInsertion(parentBlockCopy, car);
 
         vector<Node*> childrenOfParentCopy;
         for(int i = 0; i< parent->size+1; i++){
-            childrenOfParentCopy[i] = parent->children[i];
+            childrenOfParentCopy.push_back(parent->children[i]);
         }
 
         childrenOfParentCopy[parent->size+1] = nullptr;
@@ -121,33 +133,36 @@ void Tree::ParentalInsert(Node *parent, Node *child, Car* car) {
         }
 
         //Copying data over from ParentBlockCopy back into anotherNode and Parent node//
+        parent->block.clear();
+        parent->children.clear();
         for(int i = 0; i< parent->size; i++){
-            parent->block[i] = parentBlockCopy[i];
-            parent->children[i] = childrenOfParentCopy[i];
+            parent->block.push_back(parentBlockCopy[i]);
+            parent->children.push_back(childrenOfParentCopy[i]);
         }
         //No idea why but okay//
-        parent->children[parent->size] = childrenOfParentCopy[parent->size];
+        parent->children.push_back(childrenOfParentCopy[parent->size]);
+//        parent->children[parent->size] = childrenOfParentCopy[parent->size];
 
         for(int i = 0; i< anotherNode->size; i++){
-            anotherNode->block[i] = parentBlockCopy[parent->size+i+1];
-            anotherNode->children[i] = childrenOfParentCopy[i+1+ parent->size];
+            anotherNode->block.push_back(parentBlockCopy[parent->size+i+1]);
+            anotherNode->children.push_back(childrenOfParentCopy[i+1+parent->size]);
             anotherNode->children[i]->parent = anotherNode;
         }
-        anotherNode->children[anotherNode->size] = childrenOfParentCopy[anotherNode->size+parent->size+1];
+        anotherNode->children.push_back(childrenOfParentCopy[anotherNode->size+parent->size+1]);
+        //anotherNode->children[anotherNode->size] = childrenOfParentCopy[anotherNode->size+parent->size+1];
         anotherNode->children[anotherNode->size]->parent = anotherNode;
 
         //Handles pushing up to parent//
 
         //In case is root//
-        Car* c = anotherNode->block[0];
+        Car* c = parentBlockCopy[maxNumChildren/2];
         if(parent->parent == nullptr){
-            Node* newRoot;
+            Node* newRoot = new Node(c);
+            newRoot->size++;
             parent->parent = newRoot;
             anotherNode->parent = newRoot;
-            newRoot->block[0] = c;
-            newRoot->size++;
-            newRoot->children[0] = parent;
-            newRoot->children[1] = anotherNode;
+            newRoot->children.push_back(parent);
+            newRoot->children.push_back(anotherNode);
             this->root = newRoot;
         }
         else{
@@ -173,9 +188,10 @@ void Tree::Insert(Car* car) {
                     search = search->children[i];
                     break;
                 }
-                if(i == search->size){
+                if(i == search->size-1){
                     //Makes sure moves onto final children block//
                     search = search->children[i+1];
+                    break;
                 }
             }
         }
@@ -189,14 +205,13 @@ void Tree::Insert(Car* car) {
         }
         else{
             //Copying//
-            Node* splitNode;
-            splitNode->size = 0;
+            Node* splitNode = new Node();
             splitNode->leaf = true;
             splitNode->parent = search->parent;
-
+            //ADD NEW SPLITNODE AS CHILD//
             vector<Car*> copyBlock;
             for(int i = 0; i< search->size; i++){
-                copyBlock[i] = search->block[i];
+                copyBlock.push_back(search->block[i]);
             }
             //Inserting into copy//
             BlockInsertion(copyBlock, car);
@@ -207,32 +222,35 @@ void Tree::Insert(Car* car) {
                 splitNode->size = this->maxNumChildren;
             }
             else{
-                splitNode->size = this->maxNumChildren + 1;
+                splitNode->size = this->maxNumChildren /2 + 1;
             }
             //CHECK IF OTHER CARS IN BLOCK R DELETED
+            search->block.clear();
             for(int i = 0; i< search->size; i++){
-                search->block[i] = copyBlock[i];
+                search->block.push_back(copyBlock[i]);
             }
             for(int i = 0; i< splitNode->size; i++){
-                splitNode->block[i] = copyBlock[search->size+i];
+                splitNode->block.push_back(copyBlock[search->size+i]);
             }
             //WHAT DOES THIS EVEN DO//
-            search->children[search->block.size()] = splitNode;
-            splitNode->children[splitNode->block.size()] = search->children[this->maxNumChildren-1];
-            search->children[this->maxNumChildren-1] = nullptr;
+//            search->children[search->block.size()] = splitNode;
+//            splitNode->children[splitNode->block.size()] = search->children[this->maxNumChildren-1];
+//            search->children[this->maxNumChildren-1] = nullptr;
 
             //Something with parent//
             Car* c = splitNode->block[0];
             //Root case
             if(search->parent == nullptr){
                 Node* rootBlock = new Node(c);
+                rootBlock->size++;
                 search->parent = rootBlock;
                 splitNode->parent = rootBlock;
-                rootBlock->children[0] = search;
-                rootBlock->children[1] = splitNode;
+                rootBlock->children.push_back(search);
+                rootBlock->children.push_back(splitNode);
                 this->root = rootBlock;
             }
             else{
+                ParentalInsert(search->parent, splitNode, c);
             }
         }
     }
