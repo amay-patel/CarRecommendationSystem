@@ -102,7 +102,10 @@ vector<int> takeRangeInput() {
     return responses;
 }
 
-void cosine_similarility(vector<double> idealCar, vector<vector<double>> goodCars) {
+//Draft on cosine similarility
+//Issue: how to return back the original car ID
+//Possible solution: get an overloaded search
+void cosine_similarility(vector<double> idealCar, vector<vector<double>>& goodCars) {
     for(int i = 0; i < goodCars.size(); i++) {
         double dotproduct = 0.0;
         double denom_idealCar = 0.0;
@@ -116,9 +119,25 @@ void cosine_similarility(vector<double> idealCar, vector<vector<double>> goodCar
     }
 }
 
+//Another draft on cosine similarility
+//Issue: Solves issues on which data belongs to original car ID
+//Possible solution: Priority queue?
+void cosine_similarility(vector<double> idealCar, unordered_map<string, vector<double>>& goodCars) {
+    for(auto iter = goodCars.begin(); iter != goodCars.end(); ++iter) {
+        double dotproduct = 0.0;
+        double denom_idealCar = 0.0;
+        double denom_currCar = 0.0;
+        for(int i = 0; i < iter->second.size(); i++) {
+            dotproduct += idealCar[i] * goodCars[iter->first].at(i);
+            denom_idealCar += idealCar[i] * idealCar[i];
+            denom_currCar += goodCars[iter->first].at(i) * goodCars[iter->first].at(i);
+        }
+        goodCars[iter->first].push_back(dotproduct / (sqrt(denom_idealCar) * sqrt(denom_currCar)));
+    }
+}
+
 int main() {
     vector<Car> cars;
-    vector<vector<int>> info;
     json list;
     ifstream fileOpener("cars.json");
     if(!fileOpener.is_open()) {
@@ -137,13 +156,8 @@ int main() {
         string fuel = list[i].at("Fuel Information.Fuel Type");
         int price = list[i].at("Price");
         int gears = list[i].at("Engine Information.Number of Forward Gears");
+        //TODO: Replace code below with inserting into the tree
         cars.push_back(Car(model, brand, year, horsepower, cityMPG, highwayMPG, fuel, price, gears));
-        carInfo.push_back(horsepower);
-        carInfo.push_back(cityMPG);
-        carInfo.push_back(highwayMPG);
-        carInfo.push_back(price);
-        carInfo.push_back(gears);
-        info.push_back(carInfo);
     }
     vector<string> brands;
     vector<int> years;
@@ -180,6 +194,10 @@ int main() {
     rangeHighwayMPG.size() == 0 && fuelTypes.size() == 0) {
         //TODO: Call MergeSort
         //TODO: Call Radix Sort (or some other non-trivial sorting method)
+        //TODO: Display either one of their results and terminate
+    }
+    else {
+
     }
     return 0;
 }
