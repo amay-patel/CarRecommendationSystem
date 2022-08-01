@@ -3,13 +3,14 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
+#include <algorithm>
 #include "json-develop/single_include/nlohmann/json.hpp"
 
 using json = nlohmann::json;
 using namespace std;
 
 class Car {
-    private:
+    public:
         string model;
         string brand;
         int year;
@@ -18,7 +19,6 @@ class Car {
         double highwayMPG;
         string fuel;
         double price;
-        double gears;
         //string classification;
         //string transmission;
         //string engine;
@@ -29,7 +29,7 @@ class Car {
         }
 
         Car(string carModel, string carBrand, int carYear, double carHP, double carCityMpg, double carHighwayMPG,
-            string carFuel, double carPrice, double numGears) {
+            string carFuel, double carPrice) {
             this->model = carModel;
             this->brand = carBrand;
             this->year = carYear;
@@ -38,7 +38,6 @@ class Car {
             this->highwayMPG = carHighwayMPG;
             this->fuel = carFuel;
             this->price = carPrice;
-            this->gears = numGears;
         }
 };
 
@@ -102,27 +101,8 @@ vector<int> takeRangeInput() {
     return responses;
 }
 
-//Draft on cosine similarility
-//Issue: how to return back the original car ID
-//Possible solution: get an overloaded search
-void cosine_similarility(vector<double> idealCar, vector<vector<double>>& goodCars) {
-    for(int i = 0; i < goodCars.size(); i++) {
-        double dotproduct = 0.0;
-        double denom_idealCar = 0.0;
-        double denom_currCar = 0.0;
-        for(int j = 0; j < goodCars[i].size(); j++) {
-            dotproduct += idealCar[j] * goodCars.at(i).at(j);
-            denom_idealCar += idealCar[j] * idealCar[j];
-            denom_currCar += goodCars.at(i).at(j) * goodCars.at(i).at(j);
-        }
-        goodCars[i].push_back(dotproduct / (sqrt(denom_idealCar) * sqrt(denom_currCar)));
-    }
-}
-
-//Another draft on cosine similarility
-//Issue: Solves issues on which data belongs to original car ID
-//Possible solution: Priority queue?
-void cosine_similarility(vector<double> idealCar, unordered_map<string, vector<double>>& goodCars) {
+unordered_map<double, string> cosine_similarility(vector<double> idealCar, unordered_map<string, vector<double>>& goodCars) {
+    unordered_map<double, string> cosCars;
     for(auto iter = goodCars.begin(); iter != goodCars.end(); ++iter) {
         double dotproduct = 0.0;
         double denom_idealCar = 0.0;
@@ -132,21 +112,31 @@ void cosine_similarility(vector<double> idealCar, unordered_map<string, vector<d
             denom_idealCar += idealCar[i] * idealCar[i];
             denom_currCar += goodCars[iter->first].at(i) * goodCars[iter->first].at(i);
         }
-        goodCars[iter->first].push_back(dotproduct / (sqrt(denom_idealCar) * sqrt(denom_currCar)));
+        double cosSimilarilty = (dotproduct / (sqrt(denom_idealCar) * sqrt(denom_currCar)));
+        cosCars[cosSimilarilty] = iter->first;
     }
+    return cosCars;
+}
+
+vector<double> mapToVec(unordered_map<double, string> hashmap) {
+    vector<double> vec;
+    for(auto iter = hashmap.begin(); iter != hashmap.end(); ++iter) {
+        vec.push_back(iter->first);
+    }
+    return vec;
 }
 
 int main() {
     vector<Car> cars;
+    vector<double> idealCar;
+    vector<Car> goodCars;
     json list;
     ifstream fileOpener("cars.json");
     if(!fileOpener.is_open()) {
         cout << "Whoops" << endl;
     }
     fileOpener >> list;
-    //Create the cars vector. Temporary place to store
     for(int i = 0; i < list.size(); i++) {
-        vector<int> carInfo;
         string model = list[i].at("Identification.ID");
         string brand = list[i].at("Identification.Make");
         int year = list[i].at("Identification.Year");
@@ -155,9 +145,7 @@ int main() {
         int highwayMPG = list[i].at("Fuel Information.Highway mpg");
         string fuel = list[i].at("Fuel Information.Fuel Type");
         int price = list[i].at("Price");
-        int gears = list[i].at("Engine Information.Number of Forward Gears");
-        //TODO: Replace code below with inserting into the tree
-        cars.push_back(Car(model, brand, year, horsepower, cityMPG, highwayMPG, fuel, price, gears));
+        cars.push_back(Car(model, brand, year, horsepower, cityMPG, highwayMPG, fuel, price));
     }
     vector<string> brands;
     vector<int> years;
@@ -170,34 +158,59 @@ int main() {
     cout << "-----------------------------------------" << endl;
     cout << endl;
     cout << "Which brand of cars are you looking for?" << endl;
-    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
     brands = takeInput();
     cout << "What year of cars are you looking for?" << endl;
-    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
     years = takeYearInput();
     cout << "Enter in a range of horsepower you are looking for" << endl;
-    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
     rangeHP = takeRangeInput();
     cout << "Enter in a range of city MPG you are looking for" << endl;
-    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
     rangeCityMPG = takeRangeInput();
     cout << "Enter in a range of highway MPG you are looking for" << endl;
-    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
     rangeHighwayMPG = takeRangeInput();
     cout << "What type of fuel are you looking for" << endl;
-    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
     fuelTypes = takeInput();
     cout << "What is your price range?" << endl;
-    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
     priceRange = takeRangeInput();
     if(brands.size() == 0 && years.size() == 0 && rangeHP.size() == 0 && rangeCityMPG.size() == 0 &&
     rangeHighwayMPG.size() == 0 && fuelTypes.size() == 0) {
-        //TODO: Call MergeSort
-        //TODO: Call Radix Sort (or some other non-trivial sorting method)
-        //TODO: Display either one of their results and terminate
+        string input;
+        cout << "What type of sort do you want to use" << endl;
+        cout << "Enter in either MergeSort or someothersort" << endl;
+        while(true) {
+            cin >> input;
+            if(input == "MergeSort") {
+                //TODO: MergeSort the whole Car vector
+                break;
+            }
+            else if(input == "") {
+                //TODO: sort the whole Car vector
+                break;
+            }
+            else {
+                input = "";
+            }
+        }
     }
     else {
-
+        idealCar.push_back((rangeHP[0]+rangeHP[1])/2);
+        idealCar.push_back((rangeCityMPG[0]+rangeCityMPG[1])/2);
+        idealCar.push_back((rangeHighwayMPG[0]+rangeHighwayMPG[1])/2);
+        idealCar.push_back((priceRange[0]+priceRange[1])/2);
+        for(int i = 0; i < cars.size(); i++) {
+            if(find(brands.begin(), brands.end(), cars.at(i).brand) != brands.end()) {
+                if(find(years.begin(), years.end(), cars.at(i).year) != years.end()) {
+                    if(cars.at(i).horsepower >= rangeHP[0] && cars.at(i).horsepower <= rangeHP[1]) {
+                        if(cars.at(i).cityMPG >= rangeCityMPG[0] && cars.at(i).cityMPG <= rangeCityMPG[1]) {
+                            if(cars.at(i).highwayMPG >= rangeHighwayMPG[0] && cars.at(i).highwayMPG <= rangeHighwayMPG[1]) {
+                                if(cars.at(i).price >= priceRange[0] && cars.at(i).price <= priceRange[1]) {
+                                    goodCars.push_back(cars.at(i));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     return 0;
 }
