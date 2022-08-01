@@ -23,6 +23,13 @@ private:
             this->children = {};
             this->parent = nullptr;
         }
+        Node(){
+            this->leaf = false;
+            this->size = 0;
+            this->block = {};
+            this->children = {};
+            this->parent = nullptr;
+        }
     };
     int maxNumChildren;
     //int height;
@@ -33,13 +40,13 @@ private:
 public:
     // B+ Tree constructor
     Tree(int maxNumChildren, int blockSize);
-    // insert car in block vector in ascending order location
+    // Insert car in block vector in ascending location
     void BlockInsertion(vector<Car*>& block,Car* car);
-    //
-    void ParentalInsert(Node* parent, Node* child, Car* car);
-    //
+    // Insert car in
     void ChildBlockInsertion(Node* parent, Node* child, Car* car);
-    // insert car into Tree
+    // Insert car in
+    void ParentalInsert(Node* parent, Node* child, Car* car);
+    // Insert car into Tree
     void Insert(Car* car);
 
 };
