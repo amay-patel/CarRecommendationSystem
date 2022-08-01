@@ -13,7 +13,7 @@ private:
     struct Node{
         bool leaf;
         vector<Car> block;
-        vector<Node> children;
+        vector<Node*> children;
         int degree;
         int size;
         Node* parent;

@@ -12,12 +12,11 @@ Tree::Tree(int maxNumChildren, int blockSize) {
 }
 
 void Tree::BlockInsertion(vector<Car>& block, Car car) {
-    for (auto iter = block.begin(); iter < block.end(); iter++) {
-        if ((*iter).getModel() < car.getModel()) {
-            block.insert(iter, car);
-            break;
-        }
+    auto iter = block.begin();
+    for (; iter != block.end(); iter++) {
+        if ((*iter).getModel() < car.getModel()) break;
     }
+    block.insert(iter, car);
     /*int index;
     for(int i = 0; i< block.size(); i++){
         if(car.getModel() < block[i].getModel()){
@@ -54,7 +53,7 @@ void Tree::ChildBlockInsertion(Node *parent, Node *child, Car car) {
         for(int i = parent->size; i> parentBlockIndex; i--){
             parent->block[i] = parent->block[i-1];
         }
-        Node* temp2 = parent->children[parent->children.size()-1];
+        Node temp2 = parent->children[parent->children.size()-1];
         for(int i = parent->size+1; i> childBlockIndex; i--){
             parent->children[i] = parent->children[i-1];
         }
@@ -75,22 +74,22 @@ void Tree::ParentalInsert(Node *parent, Node *child, Car car) {
         Node* anotherNode;
         anotherNode->parent = parent->parent;
 
-        vector<Car> cars;
+        vector<Car> parentBlockCopy;
         for(int i = 0; i< parent->block.size(); i++){
-            cars[i] = parent->block[i];
+            parentBlockCopy[i] = parent->block[i];
         }
-        BlockInsertion(cars, car);
+        BlockInsertion(parentBlockCopy, car);
 
         vector<Node*> childrenOfParentCopy;
         for(int i = 0; i< parent->size+1; i++){
             childrenOfParentCopy[i] = parent->children[i];
         }
 
-         childrenOfParentCopy[parent->size+1] = nullptr;
+        childrenOfParentCopy[parent->size+1] = nullptr;
         //Maybe can use blockInsertion instead//
         int replacementIndex = 0;
         for(int i = 0; i< parent->size; i++){
-            if(car.getModel() < parent->block[i].getModel()){
+            if(car.getModel() < parentBlockCopy[i].getModel()){
                 replacementIndex = i;
                 break;
             }
@@ -99,12 +98,36 @@ void Tree::ParentalInsert(Node *parent, Node *child, Car car) {
                 break;
             }
         }
-        Car endCar = parent->block[parent->block.size()-1];
-        for(int i = parent->block.size()-1; i > replacementIndex; i--){
-            parent->block[i] = parent->block[i-1];
+        int indexCheck = 0;
+        for(auto iter = childrenOfParentCopy.begin(); iter< childrenOfParentCopy.end(); iter++){
+            if(indexCheck==replacementIndex){
+                childrenOfParentCopy.insert(iter, child);
+                break;
+            }
+            indexCheck++;
         }
-        parent->block[replacementIndex] = car;
-        parent->block.push_back(endCar);
+        //Splitting of parent node into 2//
+        parent->size = maxNumChildren/2;
+        if(maxNumChildren % 2 == 0){
+            anotherNode->size = maxNumChildren/2-1;
+        }
+        else{
+            anotherNode->size = maxNumChildren/2;
+        }
+
+        //Copying data over from ParentBlockCopy back into anotherNode and Parent node//
+        for(int i = 0; i< parent->size; i++){
+            parent->block[i] = parentBlockCopy[i];
+            parent->children[i] = childrenOfParentCopy[i];
+        }
+        //No idea why but okay//
+        parent->children[parent->size] = childrenOfParentCopy[parent->size];
+
+        for(int i = 0; i< anotherNode->size; i++){
+            anotherNode->block[i] = parentBlockCopy[parent->size+i+1];
+            anotherNode->children[i] = childrenOfParentCopy[i+1+ parent->size];
+            anotherNode->children[i]->parent = anotherNode;
+        }
     }
 }
 
