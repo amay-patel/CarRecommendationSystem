@@ -35,7 +35,7 @@ private:
 public:
     // B+ Tree constructor
     Tree(int maxNumChildren, int blockSize);
-    // inserts car in block vector in descending order location
+    // inserts car in block vector in ascending order location
     void BlockInsertion(vector<Car>& block,Car car);
     //
     void ParentalInsert(Node* parent, Node* child, Car car);

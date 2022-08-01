@@ -12,15 +12,13 @@ Tree::Tree(int maxNumChildren, int blockSize) {
 }
 
 void Tree::BlockInsertion(vector<Car>& block, Car car) {
-    //  here is your entire function in six lines
     for (auto iter = block.begin(); iter < block.end(); iter++) {
-        if ((*iter).getModel() > car.getModel()) {
+        if ((*iter).getModel() < car.getModel()) {
             block.insert(iter, car);
             break;
         }
     }
-    /*
-    int index;
+    /*int index;
     for(int i = 0; i< block.size(); i++){
         if(car.getModel() < block[i].getModel()){
             index = i;
