@@ -17,7 +17,7 @@ private:
     double highwayMPG;
     string fuel;
     double price;
-    double gears;
+    // double gears;
     //string classification;
     //string transmission;
     //string engine;
@@ -28,7 +28,7 @@ public:
     }
 
     Car(string carModel, string carBrand, int carYear, double carHP, double carCityMpg, double carHighwayMPG,
-        string carFuel, double carPrice, double numGears) {
+        string carFuel, double carPrice/*, double numGears*/) {
         this->model = carModel;
         this->brand = carBrand;
         this->year = carYear;
@@ -37,7 +37,7 @@ public:
         this->highwayMPG = carHighwayMPG;
         this->fuel = carFuel;
         this->price = carPrice;
-        this->gears = numGears;
+        // this->gears = numGears;
     }
 
     const string &getModel() const {
@@ -72,9 +72,9 @@ public:
         return price;
     }
 
-    double getGears() const {
-        return gears;
-    }
+    // double getGears() const {
+    //     return gears;
+    // }
 };
 
 

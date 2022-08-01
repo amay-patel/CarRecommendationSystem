@@ -11,12 +11,17 @@ Tree::Tree(int maxNumChildren, int blockSize) {
     this->size = 0;
 }
 
-void Tree::BlockInsertion(vector<Car>& block, Car car) {
-    auto iter = block.begin();
-    for (; iter != block.end(); iter++) {
-        if ((*iter).getModel() < car.getModel()) break;
+void Tree::BlockInsertion(vector<Car*>& block, Car* car) {
+    for (auto iter = block.begin(); iter < block.end(); iter++) {
+        if ((*iter)->getModel() > car->getModel()) {
+            block.insert(iter, car);
+            break;
+        }
+        if(iter+1 == block.end()){
+            block.insert(iter+1, car);
+            break;
+        }
     }
-    block.insert(iter, car);
     /*int index;
     for(int i = 0; i< block.size(); i++){
         if(car.getModel() < block[i].getModel()){
@@ -35,11 +40,11 @@ void Tree::BlockInsertion(vector<Car>& block, Car car) {
     block.push_back(endCar);*/
 }
 
-void Tree::ChildBlockInsertion(Node *parent, Node *child, Car car) {
+void Tree::ChildBlockInsertion(Node *parent, Node *child, Car* car) {
     int childBlockIndex = 0;
     int parentBlockIndex = 0;
     for(int i = 0; i < parent->size; i++){
-        if(car.getModel() < parent->block[i].getModel()){
+        if(car->getModel() < parent->block[i]->getModel()){
             childBlockIndex = i+1;
             parentBlockIndex = i;
             break;
@@ -49,11 +54,11 @@ void Tree::ChildBlockInsertion(Node *parent, Node *child, Car car) {
             parentBlockIndex = parent->size;
             break;
         }
-        Car temp = parent->block[parent->size-1];
+        Car* temp = parent->block[parent->size-1];
         for(int i = parent->size; i> parentBlockIndex; i--){
             parent->block[i] = parent->block[i-1];
         }
-        Node temp2 = parent->children[parent->children.size()-1];
+        Node* temp2 = parent->children[parent->children.size()-1];
         for(int i = parent->size+1; i> childBlockIndex; i--){
             parent->children[i] = parent->children[i-1];
         }
@@ -65,7 +70,7 @@ void Tree::ChildBlockInsertion(Node *parent, Node *child, Car car) {
     }
 }
 
-void Tree::ParentalInsert(Node *parent, Node *child, Car car) {
+void Tree::ParentalInsert(Node *parent, Node *child, Car* car) {
     if(parent->size < maxNumChildren-1){
         ChildBlockInsertion(parent, child, car);
         parent->size++;
@@ -74,7 +79,7 @@ void Tree::ParentalInsert(Node *parent, Node *child, Car car) {
         Node* anotherNode;
         anotherNode->parent = parent->parent;
 
-        vector<Car> parentBlockCopy;
+        vector<Car*> parentBlockCopy;
         for(int i = 0; i< parent->block.size(); i++){
             parentBlockCopy[i] = parent->block[i];
         }
@@ -89,7 +94,7 @@ void Tree::ParentalInsert(Node *parent, Node *child, Car car) {
         //Maybe can use blockInsertion instead//
         int replacementIndex = 0;
         for(int i = 0; i< parent->size; i++){
-            if(car.getModel() < parentBlockCopy[i].getModel()){
+            if(car->getModel() < parentBlockCopy[i]->getModel()){
                 replacementIndex = i;
                 break;
             }
@@ -128,10 +133,30 @@ void Tree::ParentalInsert(Node *parent, Node *child, Car car) {
             anotherNode->children[i] = childrenOfParentCopy[i+1+ parent->size];
             anotherNode->children[i]->parent = anotherNode;
         }
+        anotherNode->children[anotherNode->size] = childrenOfParentCopy[anotherNode->size+parent->size+1];
+        anotherNode->children[anotherNode->size]->parent = anotherNode;
+
+        //Handles pushing up to parent//
+
+        //In case is root//
+        Car* c = anotherNode->block[0];
+        if(parent->parent == nullptr){
+            Node* newRoot;
+            parent->parent = newRoot;
+            anotherNode->parent = newRoot;
+            newRoot->block[0] = c;
+            newRoot->size++;
+            newRoot->children[0] = parent;
+            newRoot->children[1] = anotherNode;
+            this->root = newRoot;
+        }
+        else{
+            ParentalInsert(parent->parent, anotherNode, c);
+        }
     }
 }
 
-void Tree::Insert(Car car) {
+void Tree::Insert(Car* car) {
     if(this->root == nullptr){
         this->root = new Node(car);
         this->size++;
@@ -144,7 +169,7 @@ void Tree::Insert(Car car) {
         while(!search->leaf){
             for(int i = 0; i < search->size; i++){
                 //Passes the search onto the according children block
-                if(car.getModel() < search->block[i].getModel()){
+                if(car->getModel() < search->block[i]->getModel()){
                     search = search->children[i];
                     break;
                 }
@@ -154,7 +179,7 @@ void Tree::Insert(Car car) {
                 }
             }
         }
-        if(search->size < maxNumChildren-1){
+        if(search->size < this->maxNumChildren-1){
             BlockInsertion(search->block, car);
             search->size++;
             //                //edit pointer(next node)
@@ -165,11 +190,11 @@ void Tree::Insert(Car car) {
         else{
             //Copying//
             Node* splitNode;
+            splitNode->size = 0;
             splitNode->leaf = true;
-            //POSSIBLE NEEDED INCASE PARENT DIRECTION//
-            //Newnode->parent = cursor->parent;
+            splitNode->parent = search->parent;
 
-            vector<Car> copyBlock;
+            vector<Car*> copyBlock;
             for(int i = 0; i< search->size; i++){
                 copyBlock[i] = search->block[i];
             }
@@ -177,12 +202,12 @@ void Tree::Insert(Car car) {
             BlockInsertion(copyBlock, car);
 
             //Resizing//
-            search->size = maxNumChildren/2;
-            if(maxNumChildren % 2 == 0){
-                splitNode->size = maxNumChildren;
+            search->size = this->maxNumChildren/2;
+            if(this->maxNumChildren % 2 == 0){
+                splitNode->size = this->maxNumChildren;
             }
             else{
-                splitNode->size = maxNumChildren + 1;
+                splitNode->size = this->maxNumChildren + 1;
             }
             //CHECK IF OTHER CARS IN BLOCK R DELETED
             for(int i = 0; i< search->size; i++){
@@ -193,11 +218,11 @@ void Tree::Insert(Car car) {
             }
             //WHAT DOES THIS EVEN DO//
             search->children[search->block.size()] = splitNode;
-            splitNode->children[splitNode->block.size()] = search->children[maxNumChildren-1];
-            search->children[maxNumChildren-1] = nullptr;
+            splitNode->children[splitNode->block.size()] = search->children[this->maxNumChildren-1];
+            search->children[this->maxNumChildren-1] = nullptr;
 
             //Something with parent//
-            Car c = splitNode->block[0];
+            Car* c = splitNode->block[0];
             //Root case
             if(search->parent == nullptr){
                 Node* rootBlock = new Node(c);
@@ -208,9 +233,7 @@ void Tree::Insert(Car car) {
                 this->root = rootBlock;
             }
             else{
-
             }
         }
-
     }
 }

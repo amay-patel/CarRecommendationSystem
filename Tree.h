@@ -12,21 +12,19 @@ class Tree{
 private:
     struct Node{
         bool leaf;
-        vector<Car> block;
+        vector<Car*> block;
         vector<Node*> children;
-        int degree;
         int size;
         Node* parent;
-        Node (Car car){
+        Node (Car* car){
             this->leaf = false;
             this->size = 0;
             this->block = {car};
-            this->degree = maxNumChildren;
             this->children = {};
             this->parent = nullptr;
         }
     };
-    static int maxNumChildren;
+    int maxNumChildren;
     //int height;
     Node* root;
     int blockSize;
@@ -35,14 +33,14 @@ private:
 public:
     // B+ Tree constructor
     Tree(int maxNumChildren, int blockSize);
-    // inserts car in block vector in ascending order location
-    void BlockInsertion(vector<Car>& block,Car car);
+    // insert car in block vector in ascending order location
+    void BlockInsertion(vector<Car*>& block,Car* car);
     //
-    void ParentalInsert(Node* parent, Node* child, Car car);
+    void ParentalInsert(Node* parent, Node* child, Car* car);
     //
-    void ChildBlockInsertion(Node* parent, Node* child, Car car);
-    // inserts car into Tree
-    void Insert(Car car);
+    void ChildBlockInsertion(Node* parent, Node* child, Car* car);
+    // insert car into Tree
+    void Insert(Car* car);
 
 };
 
