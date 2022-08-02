@@ -46,5 +46,6 @@ void parseInput (string filename, unordered_map <string, Tree*> &carBrandTrees) 
 int main() {
     unordered_map <string, Tree*> carBrandTrees;
     parseInput("cmake-build-debug/cars.csv", carBrandTrees);
+    
     return 0;
 }
