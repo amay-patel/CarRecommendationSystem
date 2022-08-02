@@ -11,9 +11,91 @@ Tree::Tree(int maxNumChildren, int blockSize) {
     this->size = 0;
 }
 
+void Tree::leafNodeInsertion(Car* toBeInserted, int indexFirstCarInNode, int indexLastCarInNode) {
+    if(leafNodes.empty()){
+        leafNodes.push_back(toBeInserted);
+        toBeInserted->setIndexInLeaves(0);
+    }
+    else{
+        int indexThatIsReplaced = indexFirstCarInNode;
+        if(indexLastCarInNode==0){
+            indexLastCarInNode++;
+        }
+
+        for(auto iter = leafNodes.begin() + indexFirstCarInNode; iter != leafNodes.begin() + indexLastCarInNode+1; iter++){
+            if((*iter)->getYear() > toBeInserted->getYear()){
+                leafNodes.insert(iter, toBeInserted);
+                break;
+            }
+            if(iter == leafNodes.begin()+indexLastCarInNode){
+                leafNodes.insert(iter+1, toBeInserted);
+                indexThatIsReplaced++;
+                break;
+            }
+            indexThatIsReplaced++;
+        }
+        for(auto iter = leafNodes.begin() + indexThatIsReplaced; iter != leafNodes.end(); iter++){
+            (*iter)->setIndexInLeaves(indexThatIsReplaced);
+            indexThatIsReplaced++;
+        }
+    }
+}
+//Can remove Node* as a parameter//
+vector<Car *> Tree::Search(Node *root, int lowerYear, int upperYeat) {
+    Node* lowerBoundNode = this->root;
+    Node* upperBoundNode = this->root;
+    vector<Car*> outputVect;
+    while(!lowerBoundNode->leaf){
+        for(int i = 0; i < lowerBoundNode->size; i++){
+            //Passes the search onto the according children block
+            if(lowerYear < lowerBoundNode->block[i]->getYear()){
+                lowerBoundNode = lowerBoundNode->children[i];
+                break;
+            }
+            if(i == lowerBoundNode->size-1){
+                //Makes sure moves onto final children block//
+                lowerBoundNode = lowerBoundNode->children[i+1];
+                break;
+            }
+        }
+    }
+    while(!upperBoundNode->leaf){
+        for(int i = 0; i < upperBoundNode->size; i++){
+            //Passes the search onto the according children block
+            if(upperYeat < upperBoundNode->block[i]->getYear()){
+                upperBoundNode = upperBoundNode->children[i];
+                break;
+            }
+            if(i == upperBoundNode->size-1){
+                //Makes sure moves onto final children block//
+                upperBoundNode = upperBoundNode->children[i+1];
+                break;
+            }
+        }
+    }
+    int lowerIndexInLeaves = 0;
+    for(auto iter = lowerBoundNode->block.begin(); iter != lowerBoundNode->block.end(); iter++){
+        if((*iter)->getYear() < lowerYear){
+            lowerIndexInLeaves = (*iter)->getIndexInLeaves()+1;
+            break;
+        }
+    }
+    int upperIndexInLeaves = 0;
+    for(auto iter = upperBoundNode->block.begin(); iter != upperBoundNode->block.end(); iter++){
+        if((*iter)->getYear() > upperYeat){
+            upperIndexInLeaves = (*iter)->getIndexInLeaves();
+            break;
+        }
+    }
+    for(auto iter = leafNodes.begin() + lowerIndexInLeaves; iter != leafNodes.begin() + upperIndexInLeaves; iter++){
+        outputVect.push_back((*iter));
+    }
+    return outputVect;
+}
+
 void Tree::BlockInsertion(vector<Car*>& block, Car* car) {
     for (auto iter = block.begin(); iter < block.end(); iter++) {
-        if ((*iter)->getModel() > car->getModel()) {
+        if ((*iter)->getYear() > car->getYear()) {
             block.insert(iter, car);
             break;
         }
@@ -25,24 +107,10 @@ void Tree::BlockInsertion(vector<Car*>& block, Car* car) {
 }
 
 void Tree::ChildBlockInsertion(Node *parent, Node *child, Car* car) {
-//    int childBlockIndex = 0;
-//    int parentBlockIndex = 0;
-//    for(int i = 0; i < parent->size; i++){
-//        if(car->getModel() < parent->block[i]->getModel()){
-//            childBlockIndex = i+1;
-//            parentBlockIndex = i;
-//            break;
-//        }
-//        if(i == parent->size-1){
-//            childBlockIndex = parent->size+1;
-//            parentBlockIndex = parent->size;
-//            break;
-//        }
-//    }
     int indexChecker = -1;
     for(auto iter = parent->block.begin(); iter < parent->block.end(); iter++){
         indexChecker++;
-        if ((*iter)->getModel() > car->getModel()) {
+        if ((*iter)->getYear() > car->getYear()) {
             parent->block.insert(iter, car);
             break;
         }
@@ -52,7 +120,6 @@ void Tree::ChildBlockInsertion(Node *parent, Node *child, Car* car) {
             break;
         }
     }
-
     int checker = 0;
     for(auto iter = parent->children.begin(); iter< parent->children.end(); iter++){
         if(checker==indexChecker+1){
@@ -65,21 +132,6 @@ void Tree::ChildBlockInsertion(Node *parent, Node *child, Car* car) {
         }
         checker++;
     }
-
-//    Car* temp = parent->block[parent->size-1];
-//    for(int i = parent->size; i> parentBlockIndex; i--){
-//        parent->block[i] = parent->block[i-1];
-//    }
-
-//    Node* temp2 = parent->children[parent->children.size()-1];
-//    for(int i = parent->size+1; i> childBlockIndex; i--){
-//        parent->children[i] = parent->children[i-1];
-//    }
-//    parent->block[parentBlockIndex] = car;
-//    parent->block.push_back(temp);
-//    parent->children[childBlockIndex] = child;
-//    parent->children.push_back(temp2);
-
 }
 
 void Tree::ParentalInsert(Node *parent, Node *child, Car* car) {
@@ -106,7 +158,7 @@ void Tree::ParentalInsert(Node *parent, Node *child, Car* car) {
         //Maybe can use blockInsertion instead//
         int replacementIndex = 0;
         for(int i = 0; i< parent->size; i++){
-            if(car->getModel() < parentBlockCopy[i]->getModel()){
+            if(car->getYear() < parentBlockCopy[i]->getYear()){
                 replacementIndex = i;
                 break;
             }
@@ -177,6 +229,7 @@ void Tree::Insert(Car* car) {
         this->size++;
         this->root->leaf = true;
         this->root->size++;
+        leafNodeInsertion(car, 0, 0);
     }
     else{
         Node* search = root;
@@ -184,7 +237,7 @@ void Tree::Insert(Car* car) {
         while(!search->leaf){
             for(int i = 0; i < search->size; i++){
                 //Passes the search onto the according children block
-                if(car->getModel() < search->block[i]->getModel()){
+                if(car->getYear() < search->block[i]->getYear()){
                     search = search->children[i];
                     break;
                 }
@@ -198,10 +251,7 @@ void Tree::Insert(Car* car) {
         if(search->size < this->maxNumChildren-1){
             BlockInsertion(search->block, car);
             search->size++;
-            //                //edit pointer(next node)
-            //                cursor->children[cursor->size] = cursor->children[cursor->size-1];
-            //                cursor->children[cursor->size-1] = nullptr;
-
+            leafNodeInsertion(car, search->block[0]->getIndexInLeaves(), search->block[search->size-1]->getIndexInLeaves());
         }
         else{
             //Copying//
@@ -213,6 +263,7 @@ void Tree::Insert(Car* car) {
             for(int i = 0; i< search->size; i++){
                 copyBlock.push_back(search->block[i]);
             }
+            leafNodeInsertion(car, copyBlock[0]->getIndexInLeaves(), copyBlock[copyBlock.size()-1]->getIndexInLeaves());
             //Inserting into copy//
             BlockInsertion(copyBlock, car);
 
@@ -254,4 +305,8 @@ void Tree::Insert(Car* car) {
             }
         }
     }
+}
+
+Tree::Node *Tree::getRoot() const {
+    return root;
 }
