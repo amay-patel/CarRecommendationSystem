@@ -17,6 +17,7 @@ private:
     double highwayMPG;
     string fuel;
     double price;
+    int indexInLeaves;
     // double gears;
     //string classification;
     //string transmission;
@@ -37,6 +38,7 @@ public:
         this->highwayMPG = carHighwayMPG;
         this->fuel = carFuel;
         this->price = carPrice;
+        this->indexInLeaves = 0;
         // this->gears = numGears;
     }
 
@@ -70,6 +72,14 @@ public:
 
     double getPrice() const {
         return price;
+    }
+
+    void setIndexInLeaves(int indexInLeaves) {
+        Car::indexInLeaves = indexInLeaves;
+    }
+
+    int getIndexInLeaves() const {
+        return indexInLeaves;
     }
 
     // double getGears() const {
