@@ -17,7 +17,7 @@ The hierarchy of criteria that guides our insertion and searching algorithm for 
 
 *\*Required*
 
-The user can enter multiple values for a parameter or type *"None"* which searches for all values of the parameter. Once a list of cars that meet the user's criteria is complete, we will compute the cosine similarity on each car with the user's ideal car (the ideal car is created by averaging the values specified in price tag, city mpg, highway mpg, and horsepower). The 50 cars with the highest similarity will be returned with the first car in the output being the most similar to the user's preferences.
+The user can enter multiple values for a parameter or type *"None"* which searches for all values of the parameter. Once a list of cars that meet the user's criteria is complete, we will compute the cosine similarity on each car with the user's ideal car (the ideal car is created by averaging the values specified in price tag, city mpg, highway mpg, and horsepower). The 50 cars with the highest similarity will be returned with the first car in the output being the most similar to the user's preferences. If there are less than 50 cars that match the users preferences, we will return all of the cars with the first car being the car that is most similar to the user's preferences. 
 
 ***
 
