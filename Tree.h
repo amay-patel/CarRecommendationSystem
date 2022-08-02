@@ -36,6 +36,9 @@ private:
     Node* root;
     int blockSize;
     int size;
+    //this vector acts as the bottom linked list
+    vector<Car*> leafNodes;
+
 
 public:
     // B+ Tree constructor
@@ -48,6 +51,12 @@ public:
     void ParentalInsert(Node* parent, Node* child, Car* car);
     // Insert car into Tree
     void Insert(Car* car);
+    //Searches through tree
+    vector<Car*> Search(Node* root, int lowerYear, int upperYeat);
+    //inserts into leaf node vector
+    void leafNodeInsertion(Car* toBeInserted, int indexFirstCarInNode, int indexLastCarInNode);
+
+    Node *getRoot() const;
 
 };
 
