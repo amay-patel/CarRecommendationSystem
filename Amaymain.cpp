@@ -214,7 +214,7 @@ int main() {
     vector<Car> cars;
 //    Tree tree(3,2);
     vector<double> idealCar;
-    unordered_map<string, Tree> hashmap;
+    unordered_map<string, Tree*> hashmap;
     unordered_map<string, vector<double>> goodCars;
     json list;
     ifstream fileOpener("cars.json");
@@ -241,7 +241,7 @@ int main() {
             hashmap[brand].Insert(car);
         }
         else {
-            Tree temp(3,2);
+            Tree temp = new Tree(3,2);
             hashmap.insert({brand,temp});
             temp.Insert(car);
         }
