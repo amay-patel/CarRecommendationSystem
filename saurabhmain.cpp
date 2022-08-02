@@ -18,7 +18,8 @@ void parseInput (string filename, unordered_map <string, Tree*> &carBrandTrees) 
     vector<string> row;
     string line, word;
     getline (file,line); // header
-    while (getline (file, line)) {
+    int debugLimit = 5; // limit the number of lines to parse for debugging purposes
+    while (getline (file, line) && debugLimit) {
         row.clear();
         stringstream str(line);
         while (getline(str, word, ','))
@@ -40,6 +41,8 @@ void parseInput (string filename, unordered_map <string, Tree*> &carBrandTrees) 
         }
         // add the current car to its respective brand Tree
         carBrandTrees[row[13]]->Insert(car);
+        
+        // debugLimit--; // comment out line if not debugging
     }
 }
 
