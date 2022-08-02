@@ -7,7 +7,7 @@
 #include "json-develop/single_include/nlohmann/json.hpp"
 #include <chrono>
 #include "Car.h"
-#define RUN 32
+#define RUN 8
 
 using namespace std::chrono;
 using json = nlohmann::json;
@@ -158,7 +158,7 @@ void insertionSort(vector<double>& cars, int left, int right) {
     for(int i = left + 1; i <= right; i++) {
         double key = cars[i];
         int j = i - 1;
-        while(j >= left && key < cars[j]) {
+        while(j >= left && cars[j] > key) {
             cars[j + 1] = cars[j];
             j--;
         }
@@ -168,18 +168,17 @@ void insertionSort(vector<double>& cars, int left, int right) {
 
 void timSort(vector<double>& arr, int n)
 {
-    for (int i = 0; i < n; i += RUN) {
+    for(int i = 0; i < n; i += RUN) {
         insertionSort(arr, i, min((i + RUN - 1), (n - 1)));
     }
-    for (int size = RUN; size < n; size = 2 * size)
-    {
-        for (int left = 0; left < n; left += 2 * size)
-        {
-            int mid = left + size - 1;
-            int right = min((left + 2*size - 1), (n-1));
+    for(int temp = RUN; temp < n; temp = 2 * temp) {
+        for(int left = 0; left < n; left += 2 * temp) {
+            int mid = left + temp - 1;
+            int right = min((left + 2*temp - 1), (n-1));
 
-            if(mid < right)
+            if(mid < right) {
                 merge(arr, left, mid, right);
+            }
         }
     }
 }
@@ -248,12 +247,13 @@ int main() {
                         if(cars.at(i).getCityMpg() >= rangeCityMPG[0] && cars.at(i).getCityMpg() <= rangeCityMPG[1]) {
                             if(cars.at(i).getHighwayMpg() >= rangeHighwayMPG[0] && cars.at(i).getHighwayMpg() <= rangeHighwayMPG[1]) {
                                 if (find(fuelTypes.begin(), fuelTypes.end(), cars.at(i).getFuel()) != fuelTypes.end()) {
-                                    if (cars.at(i).getPrice() >= priceRange[0] &&
-                                        cars.at(i).getPrice() <= priceRange[1]) {
-                                        goodCars[cars.at(i).getModel()] = {cars.at(i).getHorsepower(),
-                                                                           cars.at(i).getCityMpg(),
-                                                                           cars.at(i).getHighwayMpg(),
-                                                                           cars.at(i).getPrice()};
+                                    if (cars.at(i).getPrice() >= priceRange[0] && cars.at(i).getPrice() <= priceRange[1]) {
+                                        vector<double> temp;
+                                        temp.push_back(cars.at(i).getHorsepower());
+                                        temp.push_back(cars.at(i).getCityMpg());
+                                        temp.push_back(cars.at(i).getHighwayMpg());
+                                        temp.push_back(cars.at(i).getPrice());
+                                        goodCars.insert({cars.at(i).getModel(), temp});
                                     }
                                 }
                             }
@@ -329,13 +329,11 @@ int main() {
         }
     }
     cout << endl;
-    cout << input << " took " << duration_cast<microseconds>(stop - start).count() << " microseconds!" << endl;
-    /*
     if(input == "MergeSort") {
         cout << "MergeSort took " << duration_cast<microseconds>(stop - start).count() << " microseconds!" << endl;
     }
     else if(input == "TimSort") {
         cout << "TimSort took " << duration_cast<microseconds>(stop - start).count() << " microseconds!" << endl;
-    }*/
+    }
     return 0;
 }
