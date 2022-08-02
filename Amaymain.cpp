@@ -3,15 +3,18 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 #include <algorithm>
 #include "json-develop/single_include/nlohmann/json.hpp"
 #include <chrono>
 #include "Car.h"
+#include "Tree.h"
+#include "Tree.cpp"
 #define RUN 8
 
+using namespace std;
 using namespace std::chrono;
 using json = nlohmann::json;
-using namespace std;
 
 //This project would not be possible without the json-develop folder
 //We used a guide on https://github.com/nlohmann/json to manipulate the cars.json file
@@ -237,11 +240,16 @@ int main() {
      * idealCar vector is used to calculate cosine similarity
      * goodCars hashmap is used to store cars that meet users requirements
      */
+    // Store Car Data from Database
     vector<Car> cars;
+    unordered_map <string, Tree*> carBrandTrees;
+    // Resulting Car Data
     vector<double> idealCar;
     unordered_map<string, vector<double>> goodCars;
+
+    /** Read through Database **/
     json list;
-    ifstream fileOpener("cars.json");
+    ifstream fileOpener("cmake-build-debug/cars.json");
     if(!fileOpener.is_open()) {
         cout << "Whoops" << endl;
         return 0;
@@ -258,9 +266,15 @@ int main() {
         string fuel = list[i].at("Fuel Information.Fuel Type");
         int price = list[i].at("Price");
         cars.push_back(Car(model, brand, year, horsepower, cityMPG, highwayMPG, fuel, price));
+        if (carBrandTrees.find(brand) == carBrandTrees.end()) {
+            carBrandTrees[brand] = new Tree(3, 2);
+        }
+        carBrandTrees[brand]->Insert(new Car(model, brand, year, horsepower, cityMPG, highwayMPG, fuel, price));
     }
     fileOpener.close();
-    //bunch of vectors to store user inputs for each question
+
+    /** Get User Input **/
+    // Bunch of vectors to store user inputs for each question
     vector<string> brands;
     vector<int> years;
     vector<int> rangeHP;
@@ -292,41 +306,57 @@ int main() {
     cout << "What is your price range?" << endl;
     cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
     priceRange = takeRangeInput();
-    //if there's no information from the questions, then just display the first 100 cars and terminate program
-    //no recommendation can be made without sufficient information
+    
+    /** Get Relevant Car Recommendations **/
+    // If there's no information from the input, then just display the first 100 cars and terminate program
+    // (No recommendation can be made without sufficient information)
     if(years.size() == 0 || rangeHP.size() == 0 || rangeCityMPG.size() == 0 ||
     rangeHighwayMPG.size() == 0 || fuelTypes.size() == 0 || priceRange.size() == 0) {
         for(int i = 0; i < 100; i++) {
             cout << cars.at(i).getModel() << endl;
+            // Find default recommendation (******once Trees class is finished******)
+            // cout << carBrandTrees.getTopCars() << endl;
         }
         return 0;
     }
-    //there's sufficient information to determine recommendations
+    // If there is sufficient information to determine recommendations
     else {
-        //we must create the values for the idealCar vector
-        //we do this by computing the mean of the values in each of the range vectors
-        //then insert them into idealCar vector
+        // We must create the values for the idealCar vector
+        // We do this by computing the mean of the values in each of the range vectors
+        // Then insert them into idealCar vector
         idealCar.push_back((rangeHP[0]+rangeHP[1])/2);
         idealCar.push_back((rangeCityMPG[0]+rangeCityMPG[1])/2);
         idealCar.push_back((rangeHighwayMPG[0]+rangeHighwayMPG[1])/2);
         idealCar.push_back((priceRange[0]+priceRange[1])/2);
-        //bit confusing but it'll make sense
-        //remember that user doesnt necessarily need to know what brand they're looking for
-        //We are going through the entire cars vector and we need to check if the current car fits the criteria
-        //listed out by the user
-        //First we check the year, then we check if the current car's horsepower is in the range, then the
-        //current car's city mpg, then the current car's highway mpg, then the current car's fuel type,
-        //lastly the current car's price tag
-        //The current car must fit all of the criteria listed by the user otherwise it will not be inserted into map
-        //If all is satisfied, insert the car ID and then its horsepower, city mpg, highway mpg, and price into map
+        // bit confusing but it'll make sense
+        // remember that user doesnt necessarily need to know what brand they're looking for
+        // We are going through the entire cars vector and we need to check if the current car fits the criteria
+        // listed out by the user
+        // First we check the year, then we check if the current car's horsepower is in the range, then the
+        // current car's city mpg, then the current car's highway mpg, then the current car's fuel type,
+        // lastly the current car's price tag
+        // The current car must fit all of the criteria listed by the user otherwise it will not be inserted into map
+        // If all is satisfied, insert the car ID and then its horsepower, city mpg, highway mpg, and price into map
+        
+        // If brand is not specified
         if(brands.empty()) {
+            // Loop through all car data to check if current car meets criteria
+            // ****** Replace with Tree search method once implemented ******
             for(int i = 0; i < cars.size(); i++) {
+                // Check if year criteria is met
                 if(find(years.begin(), years.end(), cars.at(i).getYear()) != years.end()) {
+                    // Check if the horsepower is in range
                     if(cars.at(i).getHorsepower() >= rangeHP[0] && cars.at(i).getHorsepower() <= rangeHP[1]) {
+                        // Check city mpg
                         if(cars.at(i).getCityMpg() >= rangeCityMPG[0] && cars.at(i).getCityMpg() <= rangeCityMPG[1]) {
+                            //  Check highway mpg
                             if(cars.at(i).getHighwayMpg() >= rangeHighwayMPG[0] && cars.at(i).getHighwayMpg() <= rangeHighwayMPG[1]) {
+                                // Check fuel type
                                 if (find(fuelTypes.begin(), fuelTypes.end(), cars.at(i).getFuel()) != fuelTypes.end()) {
+                                    // Finally, check price tag
                                     if (cars.at(i).getPrice() >= priceRange[0] && cars.at(i).getPrice() <= priceRange[1]) {
+                                        // Insert car ID with car data into map
+                                        // ****** Will be replaced with Tree search method once finished ****** 
                                         goodCars[cars.at(i).getModel()] = {cars.at(i).getHorsepower(),
                                                                            cars.at(i).getCityMpg(),
                                                                            cars.at(i).getHighwayMpg(),
@@ -339,6 +369,7 @@ int main() {
                 }
             }
         }
+        // If brand is specified
         else {
             //This time if you the user specifies brands, we need to check if current car fits the list they provided in the question
             //We are going through the entire cars vector and we need to check if the current car fits the criteria
@@ -348,18 +379,31 @@ int main() {
             //lastly the current car's price tag
             //The current car must fit all of the criteria listed by the user otherwise it will not be inserted into map
             //If all is satisfied, insert the car ID and then its horsepower, city mpg, highway mpg, and price into map
+            
+            // Loop through all car data to check if current car meets criteria
+            // ****** Replace with Tree search method once implemented ******
             for(int i = 0; i < cars.size(); i++) {
+                // Check if brand criteria is met
+                // ****** Replace with search method once trees implemented ******
                 if (find(brands.begin(), brands.end(), cars.at(i).getBrand()) != brands.end()) {
+                    // Check if year criteria is met
                     if (find(years.begin(), years.end(), cars.at(i).getYear()) != years.end()) {
+                        // Check if horsepower is in range
                         if (cars.at(i).getHorsepower() >= rangeHP[0] && cars.at(i).getHorsepower() <= rangeHP[1]) {
+                            // Check city mpg
                             if (cars.at(i).getCityMpg() >= rangeCityMPG[0] &&
                                 cars.at(i).getCityMpg() <= rangeCityMPG[1]) {
+                                // Check highway mpg
                                 if (cars.at(i).getHighwayMpg() >= rangeHighwayMPG[0] &&
                                     cars.at(i).getHighwayMpg() <= rangeHighwayMPG[1]) {
+                                    // Check fuel type
                                     if (find(fuelTypes.begin(), fuelTypes.end(), cars.at(i).getFuel()) !=
                                         fuelTypes.end()) {
+                                        // Finally, check price tag
                                         if (cars.at(i).getPrice() >= priceRange[0] &&
                                             cars.at(i).getPrice() <= priceRange[1]) {
+                                            // Insert car ID with car data into map
+                                            // ****** Will be replaced with Tree search method once finished ****** 
                                             goodCars[cars.at(i).getModel()] = {cars.at(i).getHorsepower(),
                                                                                cars.at(i).getCityMpg(),
                                                                                cars.at(i).getHighwayMpg(),
