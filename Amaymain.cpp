@@ -241,7 +241,7 @@ int main() {
             hashmap[brand].Insert(car);
         }
         else {
-            Tree temp = new Tree(3,2);
+            Tree* temp = new Tree(3,2);
             hashmap.insert({brand,temp});
             temp.Insert(car);
         }
