@@ -32,7 +32,7 @@ A B+ Tree is defined by a few criteria:
 
 ## Sorting Algorithms Used
 
-When the user is done inputting their preferences for the car recommendation system, they are prompted to read sort the data using MergeSort or TimSort.
+When the user is done inputting their preferences for the car recommendation system, they will be asked whether they would like to use the MergeSort or TimSort algorithm for their recommended cars list.
 
 ### Mergesort
 
