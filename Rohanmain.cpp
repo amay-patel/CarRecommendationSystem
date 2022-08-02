@@ -1,5 +1,4 @@
 #include <iostream>
-#include <unordered_map>
 #include "Tree.h"
 #include "Car.h"
 using namespace std;
@@ -16,7 +15,7 @@ int main() {
     string fuel;
     double price;
     // double gears;
-    unordered_map <string, Tree*> carBrandTrees;
+    Tree tree(3, 2);
     cin >> numCars;
     while(numCars!=0){
         cin >> model;
@@ -29,12 +28,14 @@ int main() {
         cin >> price;
         // cin >> gears;
         Car* car = new Car(model, brand, year, horsepower, cityMPG, highwayMPG,
-                fuel, price/*, gears*/);
-        if (carBrandTrees.find(brand) == carBrandTrees.end()) {
-            carBrandTrees[brand] = new Tree(3, 2);
-        }
-        carBrandTrees[brand]->Insert(car);
+                           fuel, price/*, gears*/);
+        tree.Insert(car);
         numCars--;
+    }
+    vector<Car*> test = tree.Search(tree.getRoot(), 90, 2010);
+    cout << "Cars within that year range:" << endl;
+    for(auto iter = test.begin(); iter != test.end(); iter++){
+        cout << (*iter)->getModel() << endl;
     }
     return 0;
 }
