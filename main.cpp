@@ -7,8 +7,8 @@ using namespace std;
 
 int main() {
     int numCars;
-    string brand;
     string model;
+    string brand;
     int year;
     double horsepower;
     double cityMPG;
@@ -19,8 +19,8 @@ int main() {
     unordered_map <string, Tree*> carBrandTrees;
     cin >> numCars;
     while(numCars!=0){
-        cin >> brand;
         cin >> model;
+        cin >> brand;
         cin >> year;
         cin >> horsepower;
         cin >> cityMPG;
