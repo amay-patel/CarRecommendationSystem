@@ -1,39 +1,20 @@
 #include <iostream>
-#include "Tree.h"
+#include <fstream>
+#include <string>
+#include <vector>
+#include <unordered_set>
+#include <algorithm>
+#include "json-develop/single_include/nlohmann/json.hpp"
+#include <chrono>
 #include "Car.h"
+#define RUN 32
+
+using namespace std::chrono;
+using json = nlohmann::json;
 using namespace std;
 
-class Car {
-    public:
-        string model;
-        string brand;
-        int year;
-        double horsepower;
-        double cityMPG;
-        double highwayMPG;
-        string fuel;
-        double price;
-        //string classification;
-        //string transmission;
-        //string engine;
-
-    public:
-        Car() {
-
-        }
-
-        Car(string carModel, string carBrand, int carYear, double carHP, double carCityMpg, double carHighwayMPG,
-            string carFuel, double carPrice) {
-            this->model = carModel;
-            this->brand = carBrand;
-            this->year = carYear;
-            this->horsepower = carHP;
-            this->cityMPG = carCityMpg;
-            this->highwayMPG = carHighwayMPG;
-            this->fuel = carFuel;
-            this->price = carPrice;
-        }
-};
+//This project would not be possible without the json-develop folder
+//We used a guide on https://github.com/nlohmann/json to manipulate the cars.json file
 
 vector<string> takeInput() {
     vector<string> responses;
@@ -120,6 +101,9 @@ vector<double> mapToVec(unordered_map<double, string> hashmap) {
     return vec;
 }
 
+//Helper method for mergeSort
+//Code was used from Module 6 Slides
+//Approved in 3a Proposal
 void merge(vector<double>& cars, int left, int mid, int right) {
     int n1 = mid - left + 1;
     int n2 = right - mid;
@@ -158,6 +142,9 @@ void merge(vector<double>& cars, int left, int mid, int right) {
     }
 }
 
+//mergeSort function to initiate the sorting
+//Code was used from Module 6: Sorting Slides
+//Approved in 3a Proposal
 void mergeSort(vector<double>& cars, int left, int right) {
     if(left < right) {
         int mid = left + (right - left)/2;
@@ -167,7 +154,35 @@ void mergeSort(vector<double>& cars, int left, int right) {
     }
 }
 
+void insertionSort(vector<double>& cars, int left, int right) {
+    for(int i = left + 1; i <= right; i++) {
+        double key = cars[i];
+        int j = i - 1;
+        while(j >= left && key < cars[j]) {
+            cars[j + 1] = cars[j];
+            j--;
+        }
+        cars[j + 1] = key;
+    }
+}
 
+void timSort(vector<double>& arr, int n)
+{
+    for (int i = 0; i < n; i += RUN) {
+        insertionSort(arr, i, min((i + RUN - 1), (n - 1)));
+    }
+    for (int size = RUN; size < n; size = 2 * size)
+    {
+        for (int left = 0; left < n; left += 2 * size)
+        {
+            int mid = left + size - 1;
+            int right = min((left + 2*size - 1), (n-1));
+
+            if(mid < right)
+                merge(arr, left, mid, right);
+        }
+    }
+}
 
 int main() {
     vector<Car> cars;
@@ -216,23 +231,10 @@ int main() {
     priceRange = takeRangeInput();
     if(brands.size() == 0 && years.size() == 0 && rangeHP.size() == 0 && rangeCityMPG.size() == 0 &&
     rangeHighwayMPG.size() == 0 && fuelTypes.size() == 0) {
-        string input;
-        cout << "What type of sort do you want to use" << endl;
-        cout << "Enter in either MergeSort or someothersort" << endl;
-        while(true) {
-            cin >> input;
-            if(input == "MergeSort") {
-                //TODO: MergeSort the whole Car vector
-                break;
-            }
-            else if(input == "") {
-                //TODO: sort the whole Car vector
-                break;
-            }
-            else {
-                input = "";
-            }
+        for(int i = 0; i < 100; i++) {
+            cout << cars.at(i).getModel() << endl;
         }
+        return 0;
     }
     else {
         idealCar.push_back((rangeHP[0]+rangeHP[1])/2);
@@ -241,13 +243,18 @@ int main() {
         idealCar.push_back((priceRange[0]+priceRange[1])/2);
         if(brands.empty()) {
             for(int i = 0; i < cars.size(); i++) {
-                if(find(years.begin(), years.end(), cars.at(i).year) != years.end()) {
-                    if(cars.at(i).horsepower >= rangeHP[0] && cars.at(i).horsepower <= rangeHP[1]) {
-                        if(cars.at(i).cityMPG >= rangeCityMPG[0] && cars.at(i).cityMPG <= rangeCityMPG[1]) {
-                            if(cars.at(i).highwayMPG >= rangeHighwayMPG[0] && cars.at(i).highwayMPG <= rangeHighwayMPG[1]) {
-                                if(cars.at(i).price >= priceRange[0] && cars.at(i).price <= priceRange[1]) {
-                                    goodCars[cars.at(i).model] = {cars.at(i).horsepower, cars.at(i).cityMPG,
-                                                                  cars.at(i).highwayMPG, cars.at(i).price};
+                if(find(years.begin(), years.end(), cars.at(i).getYear()) != years.end()) {
+                    if(cars.at(i).getHorsepower() >= rangeHP[0] && cars.at(i).getHorsepower() <= rangeHP[1]) {
+                        if(cars.at(i).getCityMpg() >= rangeCityMPG[0] && cars.at(i).getCityMpg() <= rangeCityMPG[1]) {
+                            if(cars.at(i).getHighwayMpg() >= rangeHighwayMPG[0] && cars.at(i).getHighwayMpg() <= rangeHighwayMPG[1]) {
+                                if (find(fuelTypes.begin(), fuelTypes.end(), cars.at(i).getFuel()) != fuelTypes.end()) {
+                                    if (cars.at(i).getPrice() >= priceRange[0] &&
+                                        cars.at(i).getPrice() <= priceRange[1]) {
+                                        goodCars[cars.at(i).getModel()] = {cars.at(i).getHorsepower(),
+                                                                           cars.at(i).getCityMpg(),
+                                                                           cars.at(i).getHighwayMpg(),
+                                                                           cars.at(i).getPrice()};
+                                    }
                                 }
                             }
                         }
@@ -257,14 +264,22 @@ int main() {
         }
         else {
             for(int i = 0; i < cars.size(); i++) {
-                if(find(brands.begin(), brands.end(), cars.at(i).brand) != brands.end()) {
-                    if(find(years.begin(), years.end(), cars.at(i).year) != years.end()) {
-                        if(cars.at(i).horsepower >= rangeHP[0] && cars.at(i).horsepower <= rangeHP[1]) {
-                            if(cars.at(i).cityMPG >= rangeCityMPG[0] && cars.at(i).cityMPG <= rangeCityMPG[1]) {
-                                if(cars.at(i).highwayMPG >= rangeHighwayMPG[0] && cars.at(i).highwayMPG <= rangeHighwayMPG[1]) {
-                                    if(cars.at(i).price >= priceRange[0] && cars.at(i).price <= priceRange[1]) {
-                                        goodCars[cars.at(i).model] = {cars.at(i).horsepower, cars.at(i).cityMPG,
-                                                                      cars.at(i).highwayMPG, cars.at(i).price};
+                if (find(brands.begin(), brands.end(), cars.at(i).getBrand()) != brands.end()) {
+                    if (find(years.begin(), years.end(), cars.at(i).getYear()) != years.end()) {
+                        if (cars.at(i).getHorsepower() >= rangeHP[0] && cars.at(i).getHorsepower() <= rangeHP[1]) {
+                            if (cars.at(i).getCityMpg() >= rangeCityMPG[0] &&
+                                cars.at(i).getCityMpg() <= rangeCityMPG[1]) {
+                                if (cars.at(i).getHighwayMpg() >= rangeHighwayMPG[0] &&
+                                    cars.at(i).getHighwayMpg() <= rangeHighwayMPG[1]) {
+                                    if (find(fuelTypes.begin(), fuelTypes.end(), cars.at(i).getFuel()) !=
+                                        fuelTypes.end()) {
+                                        if (cars.at(i).getPrice() >= priceRange[0] &&
+                                            cars.at(i).getPrice() <= priceRange[1]) {
+                                            goodCars[cars.at(i).getModel()] = {cars.at(i).getHorsepower(),
+                                                                               cars.at(i).getCityMpg(),
+                                                                               cars.at(i).getHighwayMpg(),
+                                                                               cars.at(i).getPrice()};
+                                        }
                                     }
                                 }
                             }
@@ -276,7 +291,28 @@ int main() {
     }
     unordered_map<double, string> calc = cosine_similarity(idealCar, goodCars);
     vector<double> sortVec = mapToVec(calc);
-    mergeSort(sortVec, 0, sortVec.size() - 1);
+    string input;
+    cout << "What type of sort would you like to use: MergeSort or TimSort" << endl;
+    while(true) {
+        cin >> input;
+        if(input == "MergeSort") {
+            break;
+        }
+        else if(input == "TimSort") {
+            break;
+        }
+        else {
+            input = "";
+        }
+    }
+    auto start = high_resolution_clock::now();
+    if(input == "MergeSort") {
+        mergeSort(sortVec, 0, sortVec.size() - 1);
+    }
+    else if(input == "TimSort") {
+        timSort(sortVec, sortVec.size());
+    }
+    auto stop = high_resolution_clock::now();
     reverse(sortVec.begin(), sortVec.end());
     if(sortVec.size() < 50) {
         for(int i = 0; i < sortVec.size(); i++) {
@@ -292,5 +328,14 @@ int main() {
             }
         }
     }
+    cout << endl;
+    cout << input << " took " << duration_cast<microseconds>(stop - start).count() << " microseconds!" << endl;
+    /*
+    if(input == "MergeSort") {
+        cout << "MergeSort took " << duration_cast<microseconds>(stop - start).count() << " microseconds!" << endl;
+    }
+    else if(input == "TimSort") {
+        cout << "TimSort took " << duration_cast<microseconds>(stop - start).count() << " microseconds!" << endl;
+    }*/
     return 0;
 }
