@@ -1,5 +1,5 @@
 # CarRecommendationSystem
-The Car Recommendation System recommends cars to a user based on certain criteria that they input. The car data is retrieved from a [database]() and read into a B+ Tree data structure. Next, user input for certain criteria is requested. Then, the program searches through the B+ Tree for the most relevant cars. Finally, the relevant cars are outputted to the user
+The Car Recommendation System recommends cars to a user based on certain criteria that they input. The car data is retrieved from a [database](https://think.cs.vt.edu/corgis/json/cars/) and read into a B+ Tree data structure. Next, user input for certain criteria is requested. Then, the program searches through the B+ Tree for the most relevant cars. Finally, the relevant cars are outputted to the user
 
 *Created by Amay Patel, Rohan Chander, and Saurabh Anand for COP3530 - Data Structures & Algorithms on 08/01/2022*
 ***
@@ -30,8 +30,13 @@ A B+ Tree is defined by a few criteria:
 - A non-leaf node with k children contains k − 1 keys.
 - All leaves appear in the same level and carry no information.
 
-Mergesort
-- merge
+## Sorting Algorithms Used
 
-Timsort
-- tim
+When the user is done inputting their preferences for the car recommendation system, they are prompted to read sort the data using MergeSort or TimSort.
+
+### Mergesort
+
+MergeSort is a divide-and-conquer sorting algorithm used to sort the vector in our program. The divide step divides the vector into multiple small vectors while the conquer step merges the small vectors a bigger and sorted vector. It has best, average, and worst case time complexity of O(nlogn). 
+
+### TimSort
+TimSort is a unique sorting algorithm that is derived from the InsertionSort and MergeSort algorithms. It has a best case time complexity of O(n) and an average and worst case time complexity of O(nlogn). 
