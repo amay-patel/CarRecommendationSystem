@@ -9,6 +9,7 @@
 #include <chrono>
 #include "Car.h"
 #include "Tree.h"
+#include "Tree.cpp"
 #define RUN 8
 
 using namespace std::chrono;
@@ -216,7 +217,7 @@ int main() {
     unordered_map<string, Tree*> hashmap;
     unordered_map<string, vector<double>> goodCars;
     json list;
-    ifstream fileOpener("cars.json");
+    ifstream fileOpener("cmake-build-debug/cars.json");
     if(!fileOpener.is_open()) {
         cout << "Whoops" << endl;
         return 0;

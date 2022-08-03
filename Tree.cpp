@@ -1,11 +1,12 @@
 //
 // Created by Rohan Chander on 8/1/22.
 //
-
+// #pragma once
 #include "Tree.h"
 Tree::Tree() {
 
 }
+
 Tree::Tree(int maxNumChildren, int blockSize) {
     this->maxNumChildren = maxNumChildren;
     this->blockSize = blockSize;

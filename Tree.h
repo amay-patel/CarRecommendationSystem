@@ -1,7 +1,7 @@
 //
 // Created by Rohan Chander on 8/1/22.
 //
-
+#pragma once
 #ifndef TREE_CAR_REC_SERVICE_TREE_H
 #define TREE_CAR_REC_SERVICE_TREE_H
 #include <iostream>
@@ -42,6 +42,7 @@ private:
 
 public:
     // B+ Tree constructor
+    Tree();
     Tree(int maxNumChildren, int blockSize);
     // Insert car in block vector in ascending location
     void BlockInsertion(vector<Car*>& block,Car* car);
