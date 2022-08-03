@@ -254,7 +254,7 @@ int main() {
     cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
     brands = takeInput();
     cout << "What year of cars are you looking for?" << endl;
-    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
+    cout << "Enter in 'Done' when finished" << endl;
     years = takeRangeInput();
     cout << "Enter in a range of city MPG you are looking for" << endl;
     cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
@@ -263,7 +263,7 @@ int main() {
     cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
     rangeHighwayMPG = takeRangeInput();
     cout << "What type of fuel are you looking for" << endl;
-    cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
+    cout << "Enter in 'Done' when finished" << endl;
     fuelTypes = takeInput();
     cout << "Enter in a range of horsepower you are looking for" << endl;
     cout << "Enter in 'None' if you have no preference and enter in 'Done' when finished" << endl;
@@ -435,11 +435,6 @@ int main() {
     }
     cout << endl;
     //show how long it took for the sorting methods to do their thing
-    if(input == "MergeSort") {
-        cout << "MergeSort took " << duration_cast<microseconds>(stop - start).count() << " microseconds!" << endl;
-    }
-    else if(input == "TimSort") {
-        cout << "TimSort took " << duration_cast<microseconds>(stop - start).count() << " microseconds!" << endl;
-    }
+    cout << input << " took " << duration_cast<microseconds>(stop - start).count() << " microseconds!" << endl;
     return 0;
 }
