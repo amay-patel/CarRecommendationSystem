@@ -24,9 +24,14 @@ void Tree::leafNodeInsertion(Car* toBeInserted, int indexFirstCarInNode, int ind
             indexLastCarInNode++;
         }
 
-        for(auto iter = leafNodes.begin() + indexFirstCarInNode; iter != leafNodes.begin() + indexLastCarInNode; iter++) {
-            if((*iter)->getYear() >= toBeInserted->getYear()) {
+        for(auto iter = leafNodes.begin() + indexFirstCarInNode; iter != leafNodes.begin() + indexLastCarInNode + 1; iter++) {
+            if((*iter)->getYear() > toBeInserted->getYear()) {
                 leafNodes.insert(iter, toBeInserted);
+                break;
+            }
+            else if((*iter)->getYear() == toBeInserted->getYear()) {
+                leafNodes.insert(iter+1, toBeInserted);
+                indexThatIsReplaced++;
                 break;
             }
             if(iter == leafNodes.begin()+indexLastCarInNode) {
@@ -193,7 +198,7 @@ void Tree::ParentalInsert(Node *parent, Node *child, Car* car) {
             parent->block.push_back(parentBlockCopy[i]);
             parent->children.push_back(childrenOfParentCopy[i]);
         }
-        //No idea why but okay//
+
         parent->children.push_back(childrenOfParentCopy[parent->size]);
 //        parent->children[parent->size] = childrenOfParentCopy[parent->size];
 
@@ -256,11 +261,9 @@ void Tree::Insert(Car* car) {
             leafNodeInsertion(car, search->block[0]->getIndexInLeaves(), search->block[search->size-1]->getIndexInLeaves());
         }
         else{
-            //Copying//
             Node* splitNode = new Node();
             splitNode->leaf = true;
             splitNode->parent = search->parent;
-            //ADD NEW SPLITNODE AS CHILD//
             vector<Car*> copyBlock;
             for(int i = 0; i< search->size; i++){
                 copyBlock.push_back(search->block[i]);
@@ -285,10 +288,6 @@ void Tree::Insert(Car* car) {
             for(int i = 0; i< splitNode->size; i++){
                 splitNode->block.push_back(copyBlock[search->size+i]);
             }
-            //WHAT DOES THIS EVEN DO//
-//            search->children[search->block.size()] = splitNode;
-//            splitNode->children[splitNode->block.size()] = search->children[this->maxNumChildren-1];
-//            search->children[this->maxNumChildren-1] = nullptr;
 
             //Something with parent//
             Car* c = splitNode->block[0];
