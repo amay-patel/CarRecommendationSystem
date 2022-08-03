@@ -3,7 +3,9 @@
 //
 
 #include "Tree.h"
+Tree::Tree() {
 
+}
 Tree::Tree(int maxNumChildren, int blockSize) {
     this->maxNumChildren = maxNumChildren;
     this->blockSize = blockSize;
@@ -22,26 +24,26 @@ void Tree::leafNodeInsertion(Car* toBeInserted, int indexFirstCarInNode, int ind
             indexLastCarInNode++;
         }
 
-        for(auto iter = leafNodes.begin() + indexFirstCarInNode; iter != leafNodes.begin() + indexLastCarInNode+1; iter++){
-            if((*iter)->getYear() > toBeInserted->getYear()){
+        for(auto iter = leafNodes.begin() + indexFirstCarInNode; iter != leafNodes.begin() + indexLastCarInNode; iter++) {
+            if((*iter)->getYear() >= toBeInserted->getYear()) {
                 leafNodes.insert(iter, toBeInserted);
                 break;
             }
-            if(iter == leafNodes.begin()+indexLastCarInNode){
+            if(iter == leafNodes.begin()+indexLastCarInNode) {
                 leafNodes.insert(iter+1, toBeInserted);
                 indexThatIsReplaced++;
                 break;
             }
             indexThatIsReplaced++;
         }
-        for(auto iter = leafNodes.begin() + indexThatIsReplaced; iter != leafNodes.end(); iter++){
+        for(auto iter = leafNodes.begin() + indexThatIsReplaced; iter != leafNodes.end(); iter++) {
             (*iter)->setIndexInLeaves(indexThatIsReplaced);
             indexThatIsReplaced++;
         }
     }
 }
 //Can remove Node* as a parameter//
-vector<Car *> Tree::Search(Node *root, int lowerYear, int upperYeat) {
+vector<Car *> Tree::Search(Node* root, int lowerYear, int upperYeat) {
     Node* lowerBoundNode = this->root;
     Node* upperBoundNode = this->root;
     vector<Car*> outputVect;
