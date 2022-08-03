@@ -213,7 +213,6 @@ int main() {
      */
     vector<Car> cars;
     vector<double> idealCar;
-    unordered_map<string, Tree*> hashmap;
     unordered_map<string, vector<double>> goodCars;
     json list;
     ifstream fileOpener("cars.json");
@@ -223,8 +222,6 @@ int main() {
     }
     fileOpener >> list;
     //this for loop will read in all of the statistics of the current car in the cars.json
-    Tree* temp = new Tree(3,2);
-    hashmap.insert({"Acura",temp});
     for(int i = 0; i < list.size(); i++) {
         string model = list[i].at("Identification.ID");
         string brand = list[i].at("Identification.Make");
@@ -236,14 +233,6 @@ int main() {
         int price = list[i].at("Price");
         cars.push_back(Car(model, brand, year, horsepower,
                            cityMPG, highwayMPG, fuel, price));
-        Car* car = new Car(model, brand, year, horsepower,
-                           cityMPG, highwayMPG, fuel, price);
-//        if(hashmap.find(brand) != hashmap.end()) {
-//            hashmap[brand]->Insert(car);
-//        }
-        if(brand == "Acura") {
-            temp->Insert(car);
-        }
     }
     fileOpener.close();
     //bunch of vectors to store user inputs for each question
@@ -326,17 +315,15 @@ int main() {
             idealCar.push_back((rangeHP[0] + rangeHP[1])/2);
         }
 
-        //bit confusing but it'll make sense
-        //remember that user doesnt necessarily need to know what brand they're looking for
         //We are going through the entire cars vector and we need to check if the current car fits the criteria
         //listed out by the user
-        //First we check the year, then we check if the current car's horsepower is in the range, then the
+        //This is for when the user has no preference on brand
+        //First we check the price, then we check if the current car's year is in the range, then the
         //current car's city mpg, then the current car's highway mpg, then the current car's fuel type,
-        //lastly the current car's price tag
+        //lastly the current car's horsepower
         //The current car must fit all of the criteria listed by the user otherwise it will not be inserted into map
         //If all is satisfied, insert the car ID and then its horsepower, city mpg, highway mpg, and price into map
         if(brands.empty()) {
-            // ****** Replace with Tree search method once implemented ******
             for(int i = 0; i < cars.size(); i++) {
                 if(cars.at(i).getPrice() >= priceRange[0] && cars.at(i).getPrice() <= priceRange[1]) {
                     if(cars.at(i).getYear() >= years[0] && cars.at(i).getYear() <= years[1]) {
@@ -356,37 +343,16 @@ int main() {
                 }
             }
         }
-//        if(brands.empty()) {
-//            vector<Car*> decent = tree.Search(tree.getRoot(), years[0], years[1]);
-//            for (int i = 0; i < cars.size(); i++) {
-//                if (decent.at(i)->getPrice() >= priceRange[0] && decent.at(i)->getPrice() <= priceRange[1]) {
-//                    if (decent.at(i)->getCityMpg() >= rangeCityMPG[0] &&
-//                        decent.at(i)->getCityMpg() <= rangeCityMPG[1]) {
-//                        if (decent.at(i)->getHighwayMpg() >= rangeHighwayMPG[0] &&
-//                            decent.at(i)->getHighwayMpg() <= rangeHighwayMPG[1]) {
-//                            if (find(fuelTypes.begin(), fuelTypes.end(), decent.at(i)->getFuel()) != fuelTypes.end()) {
-//                                if (decent.at(i)->getHorsepower() >= rangeHP[0] &&
-//                                    decent.at(i)->getHorsepower() <= rangeHP[1]) {
-//                                    goodCars[decent.at(i)->getModel()] = {decent.at(i)->getPrice(),
-//                                                                          decent.at(i)->getCityMpg(),
-//                                                                          decent.at(i)->getHighwayMpg(),
-//                                                                          decent.at(i)->getHorsepower()};
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
         else {
             //This time if you the user specifies brands, we need to check if current car fits the list they provided in the question
             //We are going through the entire cars vector and we need to check if the current car fits the criteria
             //listed out by the user
-            //First we check the year, then we check if the current car's horsepower is in the range, then the
+            //This is for when the user has no preference on brand
+            //First we check the price, then we check if the current car's year is in the range, then the
             //current car's city mpg, then the current car's highway mpg, then the current car's fuel type,
-            //lastly the current car's price tag
+            //lastly the current car's horsepower
             //The current car must fit all of the criteria listed by the user otherwise it will not be inserted into map
-            //If all is satisfied, insert the car ID and then its price, city mpg, highway mpg, and horsepower into map
+            //If all is satisfied, insert the car ID and then its horsepower, city mpg, highway mpg, and price into map
             for(int i = 0; i < cars.size(); i++) {
                 if (cars.at(i).getPrice() >= priceRange[0] && cars.at(i).getPrice() <= priceRange[1]) {
                     if (find(brands.begin(), brands.end(), cars.at(i).getBrand()) != brands.end()) {
@@ -418,7 +384,6 @@ int main() {
     unordered_map<double, string> calc = cosine_similarity(idealCar, goodCars);
     //below method will obtain all of the keys in the calc map
     //will be used in sorting methods
-    //no changing...we need this to satisfy project requirements for 2 non-trivial sorting methods
     vector<double> sortVec = mapToVec(calc);
     //user gets to decide what sorting they would like to use
     //only selection is MergeSort or TimSort
@@ -437,9 +402,6 @@ int main() {
         }
     }
     //we need to compute the time it takes for sorting to work
-    //saw people in slack compute time for sorting methods...makes sense to do because
-    //project requirements says we need to compare performance of two sorting algos or DSs
-    //no changing
     auto start = high_resolution_clock::now();
     if(input == "MergeSort") {
         mergeSort(sortVec, 0, sortVec.size() - 1);
@@ -472,7 +434,6 @@ int main() {
     }
     cout << endl;
     //show how long it took for the sorting methods to do their thing
-    //no changing we need this for project requirements
     if(input == "MergeSort") {
         cout << "MergeSort took " << duration_cast<microseconds>(stop - start).count() << " microseconds!" << endl;
     }
