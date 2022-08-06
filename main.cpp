@@ -9,7 +9,6 @@
 #include <chrono>
 #include "Car.h"
 #include "Tree.h"
-#include "Tree.cpp"
 #define RUN 8
 
 using namespace std::chrono;
